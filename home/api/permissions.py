@@ -2,6 +2,11 @@ from home import models
 from rest_framework import permissions
 
 
+class NotAuthenticatedPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return not request.user.is_authenticated()
+
+
 class SafeMethodsOnlyPermission(permissions.BasePermission):
     """Only can access non-destructive methods (like GET and HEAD)"""
 

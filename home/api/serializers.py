@@ -19,6 +19,23 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'username',)
 
 
+class UserCreateSerializer(serializers.ModelSerializer):
+    """Serializer for user registration"""
+    # Special field for plain text password
+    password = serializers.CharField(max_length=100, write_only=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password', 'first_name', 'last_name',)
+
+    def create(self, validated_data):
+        user = User.objects.create(**validated_data)
+        # Set password from plaintext
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
+
 class PostSerializer(serializers.HyperlinkedModelSerializer):
     """Serializer for viewing posts"""
     user = UserSerializer(read_only=True)
@@ -54,7 +71,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
 
 class PostImageSerializer(serializers.ModelSerializer):
-    """Serializer for outputting just the image details"""
+    """Serializer for outputting just the image details for display"""
     image = serializers.ReadOnlyField()
 
     class Meta:

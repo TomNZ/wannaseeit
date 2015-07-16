@@ -17,6 +17,10 @@ urlpatterns = [
         UserDetail.as_view(),
         name='user-detail'),
 
+    url(r'^users/register/?$',
+        UserCreate.as_view(),
+        name='user-create'),
+
     url(r'^posts/?$',
         PostList.as_view(),
         name='post-list'),
