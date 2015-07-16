@@ -20,6 +20,10 @@ user_urls = [
 ]
 
 post_urls = [
+    url(r'^/unseen/?$',
+        UnseenPostList.as_view(),
+        name='post-unseen'),
+
     url(r'^/(?P<pk>[0-9]+)/?$',
         PostDetail.as_view(),
         name='post-detail'),

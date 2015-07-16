@@ -16,6 +16,7 @@ def wanna_see_it(request, format=None):
     return Response({
         'register': reverse('user-create', request=request, format=format),
         'posts': reverse('post-list', request=request, format=format),
+        'unseen-posts': reverse('post-unseen', request=request, format=format),
         'users': reverse('user-list', request=request, format=format),
     })
 
@@ -73,13 +74,24 @@ class PostList(generics.ListCreateAPIView):
         serializer.save(user=self.request.user)
 
 
+class UnseenPostList(generics.ListAPIView):
+    """List all recent posts that you have not yet viewed"""
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = PostSerializer
+    pagination_class = pagination.CursorPagination
+    filter_backends = (filters.OrderingFilter,)
+    ordering_fields = ('when_posted',)
+    ordering = ('-when_posted',)
+
+    def get_queryset(self):
+        return models.Post.objects.exclude(viewed_post_set__user=self.request.user)
+
+
 class PostDetail(generics.RetrieveAPIView):
     """View details about a given post"""
     queryset = models.Post.objects.all()
     permission_classes = [SafeMethodsOnlyPermission]
-
-    def get_serializer_class(self):
-        return PostSerializer
+    serializer_class = PostSerializer
 
 
 class PostImage(views.APIView):
