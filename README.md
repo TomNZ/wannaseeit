@@ -15,4 +15,4 @@ Quick start:
 * Copy `settings.py.default` to `settings.py` and modify as appropriate
 * Run `python manage.py migrate`
 * Run `python manage.py runserver`
-* Open http://localhost:8000/
+* Open <http://localhost:8000/>

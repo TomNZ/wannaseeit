@@ -5,13 +5,14 @@ from django.db import models
 class Post(models.Model):
     """Stores information about a given post"""
 
-    user = models.ForeignKey(User, related_name='post_set')
+    # User must be set
+    user = models.ForeignKey(User, related_name='post_set', blank=False, null=False)
     # Date is set automatically on object creation
     when_posted = models.DateTimeField(auto_now_add=True)
     # Enforce the presence of a caption
     caption = models.TextField(blank=False, null=False)
-    # TODO: Actually use this
-    image = models.ImageField()
+    # TODO: Actually use this - allow blanks for now
+    image = models.ImageField(blank=True, null=True)
 
     class Meta:
         # Default is to order newest -> oldest

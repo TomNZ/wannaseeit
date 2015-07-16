@@ -1,2 +1,4 @@
 /.idea
+/wannaseeit/settings.py
 *.pyc
+/*.jpg
