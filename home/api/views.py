@@ -1,13 +1,13 @@
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import Http404
-from rest_framework import generics, views, pagination, filters, renderers
+from django.http import Http404, HttpResponse, HttpResponseForbidden
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, views, pagination, filters, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from permissions import *
-from renderers import *
 from home.api.serializers import *
 from home import models
+from PIL import Image
 
 
 @api_view(('GET',))
@@ -89,18 +89,30 @@ class PostDetail(generics.RetrieveAPIView):
         return PostSerializer
 
 
-class PostImage(generics.RetrieveAPIView):
+class PostImage(views.APIView):
     """View the image associated with a given post, if allowed"""
     model = models.Post
     queryset = models.Post.objects.all()
     serializer_class = PostImageSerializer
     permission_classes = [UserCanOnlyViewPostOncePermission]
-    renderer_classes = (ImageRenderer, renderers.JSONRenderer, renderers.BrowsableAPIRenderer,)
 
-    # Override object retrieval
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        # Add a flag to say that we've viewed this image
+    def get(self, request, pk, format=None):
+        # First, grab the post
+        post = get_object_or_404(models.Post, pk=pk)
 
-        return Response(serializer.data)
+        if request.user.is_authenticated() and not post.viewed_by(request.user):
+            # We're actually allowed to view!
+            # We use PIL to ensure that the output is JPEG no matter the input
+            img = Image.open(post.image.file)
+            response = HttpResponse(content_type='image/jpeg')
+            img.save(response, "JPEG")
+
+            # Set the viewed flag for this user
+            view = models.UserViewedPost(user=request.user, post=post)
+            view.save()
+
+            # Send the response
+            return response
+        else:
+            # Invalid request
+            return Response(status=status.HTTP_403_FORBIDDEN)
