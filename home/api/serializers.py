@@ -24,11 +24,17 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
     user = UserSerializer(read_only=True)
     # Include a special hyperlink to request the post's image
     image = serializers.HyperlinkedIdentityField(source='pk', view_name='post-image')
-    #viewed = serializers.BooleanField(source='')
+    viewed = serializers.SerializerMethodField('post_viewed')
 
     class Meta:
         model = models.Post
-        fields = ('url', 'user', 'when_posted', 'caption', 'image',)
+        fields = ('url', 'user', 'when_posted', 'caption', 'viewed', 'image',)
+
+    def post_viewed(self, obj):
+        if self.context['request'].user.is_authenticated():
+            return obj.viewed_by(self.context['request'].user)
+        else:
+            return False
 
 
 class PostCreateSerializer(serializers.ModelSerializer):
