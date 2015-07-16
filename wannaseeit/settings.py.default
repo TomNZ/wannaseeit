@@ -61,9 +61,13 @@ MIDDLEWARE_CLASSES = (
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+    # Empty to allow all by default - we set permissions on
+    # individual views
+    'DEFAULT_PERMISSION_CLASSES': [],
+
+    # Page by number by default
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100
 }
 
 ROOT_URLCONF = 'wannaseeit.urls'

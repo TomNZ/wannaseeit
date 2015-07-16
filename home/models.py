@@ -14,6 +14,16 @@ class Post(models.Model):
     # TODO: Actually use this - allow blanks for now
     image = models.ImageField(blank=True, null=True)
 
+    def viewed_by(self, user):
+        try:
+            self.viewed_post_set.get(user=user)
+            return True
+        except UserViewedPost.DoesNotExist:
+            return False
+
+    def __unicode__(self):
+        return '{0} - {1}'.format(self.user.username, self.when_posted)
+
     class Meta:
         # Default is to order newest -> oldest
         ordering = ['-when_posted']
@@ -26,3 +36,6 @@ class UserViewedPost(models.Model):
 
     user = models.ForeignKey(User, related_name='viewed_post_set')
     post = models.ForeignKey(Post, related_name='viewed_post_set')
+
+    class Meta:
+        unique_together = ('user', 'post',)

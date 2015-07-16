@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
-from rest_framework import generics, views
+from rest_framework import generics, views, pagination, filters
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -21,7 +21,8 @@ class UserList(generics.ListAPIView):
     """Obtains a simple list of users"""
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [SafeMethodsOnlyPermission]
+    # By default this view should never be used - enabling it for admins only to make development easier
+    permission_classes = [permissions.IsAdminUser]
 
 
 class UserDetail(views.APIView):
@@ -32,7 +33,7 @@ class UserDetail(views.APIView):
     def get_user(pk):
         try:
             return User.objects.get(pk=pk)
-        except ObjectDoesNotExist:
+        except User.DoesNotExist:
             raise Http404
 
     def get(self, request, pk, format=None):
@@ -51,12 +52,20 @@ class PostList(generics.ListCreateAPIView):
     model = models.Post
     queryset = models.Post.objects.all()
     permission_classes = [AuthenticatedUserCanPostPermission]
+    pagination_class = pagination.CursorPagination
+    filter_backends = (filters.OrderingFilter,)
+    ordering_fields = ('when_posted',)
+    ordering = ('-when_posted',)
 
     def get_serializer_class(self):
         if self.request.method in permissions.SAFE_METHODS:
             return PostSerializer
         else:
             return PostCreateSerializer
+
+    def perform_create(self, serializer):
+        # On create, set the current user as the owner of the post
+        serializer.save(user=self.request.user)
 
 
 class PostDetail(generics.RetrieveAPIView):

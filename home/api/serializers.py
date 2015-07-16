@@ -24,6 +24,7 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
     user = UserSerializer(read_only=True)
     # Include a special hyperlink to request the post's image
     image = serializers.HyperlinkedIdentityField(source='pk', view_name='post-image')
+    #viewed = serializers.BooleanField(source='')
 
     class Meta:
         model = models.Post
@@ -31,11 +32,19 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class PostCreateSerializer(serializers.ModelSerializer):
-    """Serializer for creating posts only"""
+    """Serializer for creating posts only - limit what can be modified"""
+    # Read-only fields for display of the created object
+    url = serializers.HyperlinkedIdentityField(source='pk', view_name='post-detail', read_only=True)
+    user = UserSerializer(read_only=True)
+    when_posted = serializers.DateTimeField(read_only=True)
+    image = serializers.HyperlinkedIdentityField(source='pk', view_name='post-image', read_only=True)
+
+    # Special write-only field for doing the image upload
+    image_upload = serializers.ImageField(source='image', write_only=True)
 
     class Meta:
         model = models.Post
-        fields = ('caption', 'image',)
+        fields = ('url', 'user', 'when_posted', 'caption', 'image', 'image_upload',)
 
 
 # TODO: Change into ModelSerializer, and hook up the image field
