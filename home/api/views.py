@@ -40,15 +40,9 @@ class UserDetail(views.APIView):
     """Retrieve information about a given user - returns additional information if this user is ourself"""
     permission_classes = [SafeMethodsOnlyPermission]
 
-    @staticmethod
-    def get_user(pk):
-        try:
-            return User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            raise Http404
-
     def get(self, request, pk, format=None):
-        user = UserDetail.get_user(pk)
+        user = get_object_or_404(User, pk=pk)
+
         if request.user.is_authenticated() and request.user.pk == int(pk):
             # We're getting information about ourselves
             serializer = UserSelfSerializer(user, context={'request': request})
@@ -61,7 +55,6 @@ class UserDetail(views.APIView):
 
 class PostList(generics.ListCreateAPIView):
     """List all recent posts, and create new posts"""
-    model = models.Post
     queryset = models.Post.objects.all()
     permission_classes = [AuthenticatedUserCanPostPermission]
     pagination_class = pagination.CursorPagination
@@ -82,7 +75,6 @@ class PostList(generics.ListCreateAPIView):
 
 class PostDetail(generics.RetrieveAPIView):
     """View details about a given post"""
-    model = models.Post
     queryset = models.Post.objects.all()
     permission_classes = [SafeMethodsOnlyPermission]
 
@@ -92,8 +84,6 @@ class PostDetail(generics.RetrieveAPIView):
 
 class PostImage(views.APIView):
     """View the image associated with a given post, if allowed"""
-    model = models.Post
-    queryset = models.Post.objects.all()
     serializer_class = PostImageSerializer
     permission_classes = [UserCanOnlyViewPostOncePermission]
 
