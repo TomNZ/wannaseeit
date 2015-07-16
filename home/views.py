@@ -5,4 +5,4 @@ from django.shortcuts import render
 
 # For now just a basic redirect to the API discovery
 def index(request):
-    return HttpResponseRedirect(reverse('api-root'))
+    return HttpResponseRedirect(reverse('wanna-see-it'))
