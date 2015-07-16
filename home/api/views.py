@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from permissions import *
+from renderers import *
 from home.api.serializers import *
 from home import models
 
@@ -71,8 +72,10 @@ class PostList(generics.ListCreateAPIView):
 class PostDetail(generics.RetrieveAPIView):
     model = models.Post
     queryset = models.Post.objects.all()
-    serializer_class = PostSerializer
     permission_classes = [SafeMethodsOnlyPermission]
+
+    def get_serializer_class(self):
+        return PostSerializer
 
 
 class PostImage(generics.RetrieveAPIView):
@@ -80,3 +83,4 @@ class PostImage(generics.RetrieveAPIView):
     queryset = models.Post.objects.all()
     serializer_class = PostImageSerializer
     permission_classes = [UserCanOnlyViewPostOncePermission]
+    renderer_classes = (ImageRenderer,)

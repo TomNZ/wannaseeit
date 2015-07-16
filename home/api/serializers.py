@@ -53,11 +53,10 @@ class PostCreateSerializer(serializers.ModelSerializer):
         fields = ('url', 'user', 'when_posted', 'caption', 'image', 'image_upload',)
 
 
-# TODO: Change into ModelSerializer, and hook up the image field
-class PostImageSerializer(serializers.Serializer):
+class PostImageSerializer(serializers.ModelSerializer):
     """Serializer for outputting just the image details"""
-
-    image = serializers.CharField(max_length=None, default='test.jpg')
+    image = serializers.ReadOnlyField()
 
     class Meta:
+        model = models.Post
         fields = ('image',)
