@@ -41,7 +41,6 @@ class UserCanOnlyViewPostOncePermission(SafeMethodsOnlyPermission):
         if request.method in permissions.SAFE_METHODS:
             if request.user.is_authenticated():
                 # See if the user has seen this item
-                # TODO: Set this row when rendering the actual view
                 viewed = models.UserViewedPost.objects.filter(user=request.user, post=obj).exists()
                 return not viewed
             else:

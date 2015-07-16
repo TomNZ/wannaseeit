@@ -5,33 +5,43 @@ from home.api.views import *
 
 default_router = routers.DefaultRouter()
 
-urlpatterns = [
-    # Include a root page for API discovery
-    url(r'^$', api_root, name='api-root'),
-
-    url(r'^users/?$',
-        UserList.as_view(),
-        name='user-list'),
-
-    url(r'^users/(?P<pk>[0-9]+)/?$',
+user_urls = [
+    url(r'^/(?P<pk>[0-9]+)/?$',
         UserDetail.as_view(),
         name='user-detail'),
 
-    url(r'^users/register/?$',
+    url(r'^/register/?$',
         UserCreate.as_view(),
         name='user-create'),
 
-    url(r'^posts/?$',
-        PostList.as_view(),
-        name='post-list'),
+    url(r'^/?$',
+        UserList.as_view(),
+        name='user-list'),
+]
 
-    url(r'^posts/(?P<pk>[0-9]+)/?$',
+post_urls = [
+    url(r'^/(?P<pk>[0-9]+)/?$',
         PostDetail.as_view(),
         name='post-detail'),
 
-    url(r'^posts/(?P<pk>[0-9]+)/image/?$',
+    url(r'^/(?P<pk>[0-9]+)/image/?$',
         PostImage.as_view(),
         name='post-image'),
+
+    url(r'^/?$',
+        PostList.as_view(),
+        name='post-list'),
+]
+
+urlpatterns = [
+    # Include a root page for API discovery
+    url(r'^$', wanna_see_it, name='wanna-see-it'),
+
+    # User URLs
+    url(r'^users', include(user_urls)),
+
+    # Post URLs
+    url(r'^posts', include(post_urls)),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -11,11 +11,12 @@ from PIL import Image
 
 
 @api_view(('GET',))
-def api_root(request, format=None):
+def wanna_see_it(request, format=None):
+    """Register a new user, or view a list of posts"""
     return Response({
-        'users': reverse('user-list', request=request, format=format),
-        'posts': reverse('post-list', request=request, format=format),
         'register': reverse('user-create', request=request, format=format),
+        'posts': reverse('post-list', request=request, format=format),
+        'users': reverse('user-list', request=request, format=format),
     })
 
 

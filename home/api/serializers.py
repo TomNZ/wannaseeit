@@ -8,6 +8,8 @@ class UserSelfSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = User
+        # Note we can include additional fields here - the current user will only see this
+        # information about themselves
         fields = ('url', 'username', 'email',)
 
 
@@ -41,6 +43,8 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
     user = UserSerializer(read_only=True)
     # Include a special hyperlink to request the post's image
     image = serializers.HyperlinkedIdentityField(source='pk', view_name='post-image')
+    # Also a boolean field that we populate with a custom function to
+    # indicate if this image has been viewed by the current user
     viewed = serializers.SerializerMethodField('post_viewed')
 
     class Meta:
@@ -51,6 +55,7 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         if self.context['request'].user.is_authenticated():
             return obj.viewed_by(self.context['request'].user)
         else:
+            # Unauthenticated user - just say that the image hasn't been viewed
             return False
 
 
